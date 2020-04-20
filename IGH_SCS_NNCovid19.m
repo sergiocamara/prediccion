@@ -59,3 +59,6 @@ for i=1:n_comunidades
         title("Recuperados")
 end
 legend(hr, name_ccaa,'Location','westoutside')
+
+
+
