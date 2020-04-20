@@ -14,7 +14,7 @@ cod_ccaa_cell = {'AN', 'Andalucía';
             'EX', 'Extremadura';
             'GA', 'Galicia';
             'MD', 'Comunidad de Madrid';
-            'ME', 'Melilla';
+            'ML', 'Melilla';
             'MC', 'Región de Murcia';
             'NC', 'Comunidad Foral de Navarra';
             'PV', 'País Vasco';
@@ -39,6 +39,10 @@ historic = cell(1,3); % (# countries, 3)
 for ix_ccaa = 2 : size(ccaa_data, 1)
     
     ccaa = ccaa_data{ix_ccaa, 1};
+    
+    if ismissing(ccaa)
+        break;
+    end
     
     if isempty(find(ismember(cod_ccaa_cell(:, 1), ccaa)))
         break;
