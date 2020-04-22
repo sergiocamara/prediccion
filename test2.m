@@ -33,13 +33,14 @@ performance = perform(net,t,y)
 [netc,xic,aic] = closeloop(net,xfo,afo);
 [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 values
     
-Forecast = horzcat(y,y2)
+Forecast = horzcat(t,y2)
 % Plot the close-loop results
-tc_mat = cell2mat(y);
+tc_mat = cell2mat(t);
 yc_mat = cell2mat(Forecast);
+y2_mat = cell2mat(y2);
 figure(4), hold on
 plot(3:length(T), tc_mat, 'b')
-plot(3:length(T), yc_mat, 'r--')
+plot(length(T)+1:length(T)+length(y2), y2_mat, 'r--')
 legend('TARGET', 'OUTPUT')
 title('Close-loop results');
 
