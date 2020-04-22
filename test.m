@@ -19,6 +19,8 @@ net = narnet(feedbackDelays,hiddenLayerSize);
 net.divideParam.trainRatio = 85/100;
 net.divideParam.valRatio = 5/100;
 net.divideParam.testRatio = 10/100;
+net.performFcn = 'mse'; % Mean squared error
+net.trainParam.epochs=2000;
 % Train the Network
 [net,tr] = train(net,x,t,xi,ai);
 % Test the Network
@@ -38,10 +40,19 @@ figure, plotresponse(t,y)
 % Use this network to do multi-step prediction.
 % The function CLOSELOOP replaces the feedback input with a direct
 % connection from the outout layer.
-netc = closeloop(net);
-[xc,xic,aic,tc] = preparets(netc,{},{},T);
-yc = netc(xc,xic,aic);
-perfc = perform(net,tc,yc)
+
+
+%netc = closeloop(net);
+%[xc,xic,aic,tc] = preparets(netc,{},{},T);
+%yc = netc(xc,xic,aic);
+%perfc = perform(net,tc,yc)
+
+
+ [x1,xio,aio,t] = preparets(net,{},{},T);
+    [y1,xfo,afo] = net(x1,xio,aio);
+    [netc,xic,aic] = closeloop(net,xfo,afo);
+    [y2,xfc,afc] = netc(cell(0,1),xic,aic); % Predict next 7 values
+
 % Step-Ahead Prediction Network
 % For some applications it helps to get the prediction a timestep early.
 % The original network returns predicted y(t+1) at the same time it is given y(t+1).
@@ -50,8 +61,13 @@ perfc = perform(net,tc,yc)
 % The network can be made to return its output a timestep early by removing one delay
 % so that its minimal tap delay is now 0 instead of 1.  The new network returns the
 % same outputs as the original network, but outputs are shifted left one timestep.
-nets = removedelay(net);
-[xs,xis,ais,ts] = preparets(nets,{},{},T);
-ys = nets(xs,xis,ais);
-stepAheadPerformance = perform(net,ts,ys)
 
+%nets = removedelay(net);
+%[xs,xis,ais,ts] = preparets(nets,{},{},T);
+%ys = nets(xs,xis,ais);
+%stepAheadPerformance = perform(net,ts,ys)
+
+nets = removedelay(net);
+[x1,xio,aio,t] = preparets(nets,{},{},T);
+[netc,xic,aic] = nets(x1,xio,aio);
+%stepAheadPerformance = perform(net,ts,ys)
