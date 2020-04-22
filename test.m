@@ -1,25 +1,51 @@
-close all,clear all, clc, plt=0;
 
-[output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain();
-%LLamamiento a la función
-%[output, name_ccaa, iso_ccaa, data_spain] = HistoricDataSpain()
-id_comunidad=7; % id comunidad
-name_ccaa{id_comunidad};   % nombre de comunidad
-output.historic{id_comunidad}; % estrucutura
+[output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain()
+
+y = reshape(output.historic{1}.DailyCases,1,[]);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% PROCESAMIENTO DE DATOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%dataTrain=smooth(y,0.1,'moving')';
+%dataTrainaux=smooth(y,0.1,'moving')';
+dataTrainaux=y;
+dataTrain=y;
+mu = mean(dataTrain);
+sig = std(dataTrain);
+dataTrainStandardized = (dataTrain - mu) / sig;
+XTrain = dataTrainStandardized(1:end-1);
+YTrain = dataTrainStandardized(2:end);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% DEFINICION DE RED
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+numFeatures = 1;
+numResponses = 1;
+numHiddenUnits = 100;
+layers = [ ...
+    sequenceInputLayer(numFeatures)
+    lstmLayer(numHiddenUnits)
+    fullyConnectedLayer(numResponses)
+    regressionLayer];
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% OPCIONES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+options = trainingOptions('adam', ...
+    'MaxEpochs',100, ...
+    'GradientThreshold',1, ...
+    'InitialLearnRate',0.005, ...
+    'LearnRateSchedule','piecewise', ...
+    'LearnRateDropPeriod',5, ...
+    'LearnRateDropFactor',0.05, ...
+    'Verbose',0);%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% ENTRENAMIENTO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+net = trainNetwork(XTrain,YTrain,layers,options);
 
 
-% Redes autoregresivas: tratan de predecir algo basándose en previos casos
-% de ese algo. Tratan de capturar un patrón. 
-
-y = reshape(output.historic{1}.DailyCases,[],1); % reshape daily cases in andalucia 
-targetSeries = tonndata(y,false,false); % convert data to neural network array form
-net = narnet(1:4,10); % arbitrary until here
-net.divideParam.trainRatio = 85/100; % 85% of data for training
-net.divideParam.valRatio = 5/100; % 5% of data for validation
-net.divideParam.testRatio = 10/100; % 10% of data for testing
-[X,Xi,Ai,t] = preparets(net,{},{},targetSeries); % prepare time series, for open-lop NN
-[net,tr] = train(net,X,t,Xi,Ai); % train the neural network
-netc = closeloop(net); % convert neural network to closed loop
-[Xc,Xic,Aic,Tc] = preparets(netc,{},{},targetSeries); % prepare time series, for closed-loop NN
-% NOW it's getting interesting:
-outputc = netc(Xc,Xic,Aic);
+ targetSeries = tonndata(y,false,false);
+   
+    netc = closeloop(net);
+   
+     [Xc,Xic,Aic,Tc] = preparets(netc,{},{},targetSeries);
+    % NOW it's getting interesting:
+    outputc = netc(Xc,Xic,Aic);
