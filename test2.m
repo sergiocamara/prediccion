@@ -1,4 +1,4 @@
-  
+clearvars; clear all;
 [output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain()
 
   
@@ -33,9 +33,9 @@ performance = perform(net,t,y)
 [netc,xic,aic] = closeloop(net,xfo,afo);
 [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 values
     
-Forecast = horzcat(y,y2)
+Forecast = horzcat(t,y2)
 % Plot the close-loop results
-tc_mat = cell2mat(y);
+tc_mat = cell2mat(t);
 yc_mat = cell2mat(Forecast);
 figure(4), hold on
 plot(3:length(T), tc_mat, 'b')
