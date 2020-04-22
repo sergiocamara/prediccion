@@ -19,6 +19,8 @@ for i=1:length(name_ccaa)
         y = eval(['structura.' names{n}])
         plot(y)
     end
+        legend(variables,'Location','westoutside')
+
 end
 
 
