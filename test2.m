@@ -1,8 +1,9 @@
 clearvars; clear all;
 [output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain()
 
+
   
-y = reshape(output.historic{1}.DailyCases,[],1)
+y = reshape(output.historic{3}.DailyCases,[],1)
 T = tonndata(y,false,false);
 % Create a Nonlinear Autoregressive Network
 feedbackDelays = 1:2;
@@ -20,7 +21,7 @@ net.divideParam.trainRatio = 85/100;
 net.divideParam.valRatio = 5/100;
 net.divideParam.testRatio = 10/100;
 net.performFcn = 'mse'; % Mean squared error
-net.trainParam.epochs=2000;
+net.trainParam.epochs=100;
 % Train the Network
 [net,tr] = train(net,x,t,xi,ai);
 % Test the Network
@@ -33,16 +34,17 @@ performance = perform(net,t,y)
 [netc,xic,aic] = closeloop(net,xfo,afo);
 [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 values
     
-Forecast = horzcat(t,y2)
+%Forecast = horzcat(t,y2)
 % Plot the close-loop results
 tc_mat = cell2mat(t);
-yc_mat = cell2mat(Forecast);
+%yc_mat = cell2mat(Forecast);
 y2_mat = cell2mat(y2);
 figure(4), hold on
 plot(3:length(T), tc_mat, 'b')
-plot(length(T)+1:length(T)+length(y2), y2_mat, 'r--')
-legend('TARGET', 'OUTPUT')
+plot(length(T)+1:length(T)+length(y2), y2_mat, 'r-o')
+legend('Observed', 'Forecasting')
 title('Close-loop results');
+set(gca,'xticklabel',fechas')
 
 
 nets = removedelay(net);
