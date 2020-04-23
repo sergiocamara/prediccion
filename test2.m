@@ -1,20 +1,16 @@
-clearvars; clear all;
-[output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain()
+close all; clear all; clc;
+[output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain();
 
+% get CLM data
+y = reshape(output.historic{7}.DailyCases,[],1);
 
-  
-y = reshape(output.historic{3}.DailyCases,[],1)
 T = tonndata(y,false,false);
+
 % Create a Nonlinear Autoregressive Network
-feedbackDelays = 1:2;
-hiddenLayerSize = 2;
-net = narnet(feedbackDelays,hiddenLayerSize);
-% Prepare the Data for Training and Simulation
-% The function PREPARETS prepares timeseries data for a particular network,
-% shifting time by the minimum amount to fill input states and layer states.
-% Using PREPARETS allows you to keep your original time series data unchanged, while
-% easily customizing it for networks with differing numbers of delays, with
-% open loop or closed loop feedback modes.
+feedbackDelays = 1:2; % default one
+hiddenLayerSize = 2;  % number of hidden layers
+net = narnet(feedbackDelays,hiddenLayerSize); % create the NAR NN
+% prepare data for network training (open loop)
 [x,xi,ai,t] = preparets(net,{},{},T);
 % Setup Division of Data for Training, Validation, Testing
 net.divideParam.trainRatio = 85/100;
@@ -27,27 +23,23 @@ net.trainParam.epochs=100;
 % Test the Network
 y = net(x,xi,ai);
 e = gsubtract(t,y);
-performance = perform(net,t,y)
 
+% prepare data for network training (close loop)
 [x1,xio,aio,t] = preparets(net,{},{},T);
 [y1,xfo,afo] = net(x1,xio,aio);
-[netc,xic,aic] = closeloop(net,xfo,afo);
+[netc,xic,aic] = closeloop(net,xfo,afo); % close the loop
 [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 values
     
-%Forecast = horzcat(t,y2)
 % Plot the close-loop results
-tc_mat = cell2mat(t);
-%yc_mat = cell2mat(Forecast);
+tc_mat = cell2mat(t); % convert from cell to matrix
 y2_mat = cell2mat(y2);
-figure(4), hold on
-plot(3:length(T), tc_mat, 'b')
-plot(length(T)+1:length(T)+length(y2), y2_mat, 'r-o')
+figure(1), hold on
+% Generate the date array for all the timestamps
+fechas1 = datetime(output.historic{1}.label_x{3}, 'InputFormat', 'dd-MM-yyyy'):datetime(output.historic{1}.label_x{length(output.historic{1}.label_x)}, 'InputFormat', 'dd-MM-yyyy');
+plot(datenum(fechas1), tc_mat, 'b')
+% Create the 7 dates following the last recorded date
+fechas2 = datetime(output.historic{1}.label_x{length(output.historic{1}.label_x)}, 'InputFormat', 'dd-MM-yyyy') + caldays(1:7); 
+plot(datenum(fechas2), y2_mat, 'r-o')
 legend('Observed', 'Forecasting')
 title('Close-loop results');
-set(gca,'xticklabel',fechas')
-
-
-nets = removedelay(net);
-[x1,xio,aio,t] = preparets(nets,{},{},T);
-[netc,xic,aic] = nets(x1,xio,aio);
-%stepAheadPerformance = perform(net,ts,ys)
+datetick('x', 'dd-MM', 'keeplimits')
