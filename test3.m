@@ -12,7 +12,7 @@ function valores = get_prediction_for_day_n(day)
     [output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain();
 
     % Variables we care about
-    variables = containers.Map({'DailyCases','Hospitalized','Critical','DailyDeaths','DailyRecoveries'}, {8,2,3,9,10});
+    variables = containers.Map({'DailyCases','Hospitalized','Critical','DailyDeaths','DailyRecoveries'}, {10,4,5,11,12});
     variables_keys = keys(variables);
 
     cHeader = {'CCAA' 'FECHA' 'CASOS' 'Hospitalizados','UCI', 'Fallecidos','Recuperados'}; % CSV header
