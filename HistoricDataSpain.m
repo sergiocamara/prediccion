@@ -140,7 +140,7 @@ for ix_ccaa = 1 : size(historic, 1)
     
     for idx_day = 1 : length(data.label_x)
          if(data.AcumulatedCases(idx_day) == 0 )
-            data.Cases(idx_day) = data.AcumulatedPRC(idx_day) + data.AcumulatedTestAc(idx_day) - data.Deaths(idx_day) - data.AcumulatedRecoveries(idx_day);
+            data.Cases(idx_day) = data.AcumulatedPRC(idx_day) - data.Deaths(idx_day) - data.AcumulatedRecoveries(idx_day);
          else
             data.Cases(idx_day) = data.AcumulatedCases(idx_day) - data.Deaths(idx_day) - data.AcumulatedRecoveries(idx_day);
         end
@@ -153,11 +153,11 @@ for ix_ccaa = 1 : size(historic, 1)
         
         NextAcumulatedCases = data.AcumulatedCases(idx_day+1);
         if( NextAcumulatedCases == 0)
-            NextAcumulatedCases = data.AcumulatedPRC(idx_day+1) + data.AcumulatedTestAc(idx_day+1);
+            NextAcumulatedCases = data.AcumulatedPRC(idx_day+1);
         end
         ActualAcumulatedCases = data.AcumulatedCases(idx_day);
         if( ActualAcumulatedCases == 0)
-            ActualAcumulatedCases = data.AcumulatedPRC(idx_day) + data.AcumulatedTestAc(idx_day);
+            ActualAcumulatedCases = data.AcumulatedPRC(idx_day);
         end
         
         data.DailyCases(idx_day+1) = NextAcumulatedCases - ActualAcumulatedCases;
