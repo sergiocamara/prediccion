@@ -1,12 +1,12 @@
 close all; clear all; clc;
 
 get_prediction_for_day_n(1);
-get_prediction_for_day_n(2);
-get_prediction_for_day_n(3);
-get_prediction_for_day_n(4);
-get_prediction_for_day_n(5);
-get_prediction_for_day_n(6);
-get_prediction_for_day_n(7);
+%get_prediction_for_day_n(2);
+%get_prediction_for_day_n(3);
+%get_prediction_for_day_n(4);
+%get_prediction_for_day_n(5);
+%get_prediction_for_day_n(6);
+%get_prediction_for_day_n(7);
 function valores = get_prediction_for_day_n(day)
     index_of_day = 55 + day;
     [output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain();
@@ -22,6 +22,7 @@ function valores = get_prediction_for_day_n(day)
 
     % Iterate over all the CCAA
     for i=1:length(name_ccaa)
+        
         structura = output.historic{i}; % data of this ccaa
         names = fieldnames(output.historic{i}); % labels of the variables
         valores = cell(7);
@@ -37,7 +38,7 @@ function valores = get_prediction_for_day_n(day)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             T = tonndata(y,false,false);
             % Create a Nonlinear Autoregressive Network
-            feedbackDelays = 1:2;
+            feedbackDelays = 1:4;
             hiddenLayerSize = 2;
             net = narnet(feedbackDelays,hiddenLayerSize);
             % prepare data for network training
@@ -47,8 +48,11 @@ function valores = get_prediction_for_day_n(day)
             net.divideParam.valRatio = 5/100;
             net.divideParam.testRatio = 10/100;
             net.performFcn = 'mse'; % Mean squared error
+            net.trainFcn = 'traingdx';
+            net.trainParam.goal	= 0;
+
             net.trainParam.epochs=100;
-            % Train the Network
+                       % Train the Network
             [net,tr] = train(net,x,t,xi,ai);
             % Test the Network
             y = net(x,xi,ai);
