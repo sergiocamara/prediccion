@@ -29,15 +29,15 @@ function valores = get_prediction_for_day_n(day)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             T = tonndata(y,false,false);
             % Create a Nonlinear Autoregressive Network
-            feedbackDelays = 1:4;
+            feedbackDelays = 1:2;
             hiddenLayerSize = 20;
             net = narnet(feedbackDelays,hiddenLayerSize);
             % prepare data for network training
             [x,xi,ai,t] = preparets(net,{},{},T);
             % Setup Division of Data for Training, Validation, Testing
-            net.divideParam.trainRatio = 50/100;
+            net.divideParam.trainRatio = 85/100;
             net.divideParam.valRatio = 5/100;
-            net.divideParam.testRatio = 35/100;
+            net.divideParam.testRatio = 5/100;
             net.performFcn = 'mse'; % Mean squared error
             net.trainFcn = 'traingdx';
             net.trainParam.goal	= 0;
