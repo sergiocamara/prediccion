@@ -53,7 +53,11 @@ function valores = get_prediction_for_day_n(day)
             [y1,xfo,afo] = net(x1,xio,aio);
             [netc,xic,aic] = closeloop(net,xfo,afo); % close the loop
             [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 days
-
+            for z=1:length(y2)
+                if y2{z} < 0
+                    y2{z} = 0;
+                end
+            end
             % Write the prediction to the corresponding cell
             for w=1:7
                 ccaa = iso_ccaa(i);

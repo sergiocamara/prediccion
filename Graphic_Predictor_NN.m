@@ -2,7 +2,7 @@ close all; clear all; clc;
 [output,name_ccaa,iso_ccaa, data_spain] = HistoricDataSpain();
 
 % get CLM data
-y = reshape(output.historic{7}.DailyCases,[],1);
+y = reshape(output.historic{9}.DailyCases,[],1);
 
 T = tonndata(y,false,false);
 
@@ -33,10 +33,17 @@ e = gsubtract(t,y);
 [y1,xfo,afo] = net(x1,xio,aio);
 [netc,xic,aic] = closeloop(net,xfo,afo); % close the loop
 [y2,xfc,afc] = netc(cell(0,7),xic,aic); % Predict next 7 values
-    
+   
+for j=1:length(y2)
+    if y2{j} < 0
+        y2{j} = 0;
+    end
+end
 % Plot the close-loop results
 tc_mat = cell2mat(t); % convert from cell to matrix
 y2_mat = cell2mat(y2);
+
+
 figure(1), hold on
 % Generate the date array for all the timestamps
 fechas1 = datetime(output.historic{1}.label_x{3}, 'InputFormat', 'dd-MM-yyyy'):datetime(output.historic{1}.label_x{length(output.historic{1}.label_x)}, 'InputFormat', 'dd-MM-yyyy');
