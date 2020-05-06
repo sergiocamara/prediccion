@@ -9,12 +9,13 @@ function valores = get_prediction_for_day_n(day)
 
     cHeader = {'CCAA' 'FECHA' 'CASOS' 'Hospitalizados','UCI', 'Fallecidos','Recuperados'}; % CSV header
     textHeader = strjoin(cHeader, ','); % Header fields are separated by commas
-    fid = fopen(strcat('IGH_SCS_',num2str(day + 15),'_04_2020.csv'),'w'); % Create the CSV that will contain the predictions
+    fid = fopen(strcat('IGH_SCS_',num2str(day + 14),'_04_2020.csv'),'w'); % Create the CSV that will contain the predictions
     fprintf(fid,'%s\n',textHeader); % Write header to file
 
     % Iterate over all the CCAA
     for i=1:length(name_ccaa)
-        
+        structura = output.historic{i}; % data of this ccaa
+
         names = fieldnames(output.historic{i}); % labels of the variables
         valores = cell(7);
         
